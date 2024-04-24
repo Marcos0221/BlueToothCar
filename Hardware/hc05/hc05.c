@@ -4,21 +4,24 @@
 
 void HC05_Init(void)
 {
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
+	GPIO_PinRemapConfig(GPIO_Remap_USART1, ENABLE);
+	
 	// 开启时钟
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
 
 	// GPIO结构体配置
 	GPIO_InitTypeDef GPIO_InitStructure;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;         // GPIO 模式
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;              // GPIO 引脚
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;              // GPIO 引脚
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;       // GPIO 速度
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
 
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;   // GPIO 模式
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;              // GPIO 引脚
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;              // GPIO 引脚
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;       // GPIO 速度
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
 
 	USART_InitTypeDef USART_InitStruct;
 	USART_InitStruct.USART_BaudRate = 9600;     // 波特率
@@ -27,20 +30,20 @@ void HC05_Init(void)
 	USART_InitStruct.USART_Parity = USART_Parity_No;        // 奇偶校验位
 	USART_InitStruct.USART_StopBits = USART_StopBits_1;     // 停止位
 	USART_InitStruct.USART_WordLength = USART_WordLength_8b;        // 数据长度
-	USART_Init(USART2, &USART_InitStruct);
+	USART_Init(USART1, &USART_InitStruct);
 
-	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);      // 串口中断配置
+	USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);      // 串口中断配置
 
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);     // NVIC中断分组
 
 	NVIC_InitTypeDef NVIC_InitStruct;
-	NVIC_InitStruct.NVIC_IRQChannel = USART2_IRQn;      // 中断通道
+	NVIC_InitStruct.NVIC_IRQChannel = USART1_IRQn;      // 中断通道
 	NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;        // 中断使能
 	NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 1;      // 抢占优先级
 	NVIC_InitStruct.NVIC_IRQChannelSubPriority = 1;     // 从占优先级
 	NVIC_Init(&NVIC_InitStruct);
 
-	USART_Cmd(USART2, ENABLE);      // 串口使能
+	USART_Cmd(USART1, ENABLE);      // 串口使能
 }
 
 /**
@@ -50,8 +53,8 @@ void HC05_Init(void)
   */
 void HC05_SendByte(uint8_t Byte)
 {
-	USART_SendData(USART2, Byte);		//将字节数据写入数据寄存器，写入后USART自动生成时序波形
-	while (USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET);	//等待发送完成
+	USART_SendData(USART1, Byte);		//将字节数据写入数据寄存器，写入后USART自动生成时序波形
+	while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);	//等待发送完成
 	/*下次写入数据寄存器会自动清除发送完成标志位，故此循环后，无需清除标志位*/
 }
 
